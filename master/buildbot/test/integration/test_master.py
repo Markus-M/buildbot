@@ -36,8 +36,6 @@ class RunMaster(dirs.DirsMixin, unittest.TestCase):
 
     @defer.inlineCallbacks
     def do_test_master(self):
-        raise unittest.SkipTest("see #2395")
-
         # create the master and set its config
         m = BuildMaster(self.basedir, self.configfile)
         m.config = config.MasterConfig.loadConfig(
@@ -59,6 +57,11 @@ class RunMaster(dirs.DirsMixin, unittest.TestCase):
         yield m.startService(_reactor=mock_reactor)
         self.failIf(mock_reactor.stop.called,
             "startService tried to stop the reactor; check logs")
+
+        # hang out for a fraction of a second, to let startup processes run
+        d = defer.Deferred()
+        reactor.callLater(0.01, d.callback, None)
+        yield d
 
         # stop the service
         yield m.stopService()

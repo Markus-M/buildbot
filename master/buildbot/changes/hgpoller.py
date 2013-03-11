@@ -36,8 +36,12 @@ class HgPoller(base.PollingChangeSource):
     def __init__(self, repourl, branch='default',
                  workdir=None, pollInterval=10*60,
                  hgbin='hg', usetimestamps=True,
-                 category=None, project='',
+                 category=None, project='', pollinterval=-2,
                  encoding='utf-8'):
+
+        # for backward compatibility; the parameter used to be spelled with 'i'
+        if pollinterval != -2:
+            pollInterval = pollinterval
 
         self.repourl = repourl
         self.branch = branch
@@ -93,7 +97,7 @@ class HgPoller(base.PollingChangeSource):
                                    env=os.environ, errortoo=False )
         def process(output):
             # fortunately, Mercurial issues all filenames one one line
-            date, author, files, comments = output.decode(self.encoding).split(
+            date, author, files, comments = output.decode(self.encoding, "replace").split(
                 os.linesep, 3)
 
             if not self.usetimestamps:
@@ -246,7 +250,7 @@ class HgPoller(base.PollingChangeSource):
             return
         if current is None:
             # we could have used current = -1 convention as well (as hg does)
-            revrange = '0:%d' % head
+            revrange = '%d:%d' % (head, head)
         else:
             revrange = '%d:%s' % (current + 1, head)
 

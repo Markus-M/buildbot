@@ -363,7 +363,7 @@ class WebStatus(service.MultiService):
         self.putChild("console", ConsoleStatusResource(
                 orderByTime=self.orderConsoleByTime))
         self.putChild("tgrid", TransposedGridStatusResource())
-        self.putChild("builders", BuildersResource()) # has builds/steps/logs
+        self.putChild("builders", BuildersResource(numbuilds=numbuilds)) # has builds/steps/logs
         self.putChild("one_box_per_builder", Redirect("builders"))
         self.putChild("changes", ChangesResource())
         self.putChild("buildslaves", BuildSlavesResource())
@@ -534,7 +534,7 @@ class WebStatus(service.MultiService):
     # This is in preparation for removal of the IControl hierarchy
     # entirely.
 
-    def checkConfig(self, otherStatusReceivers, errors):
+    def checkConfig(self, otherStatusReceivers):
         duplicate_webstatus=0
         for osr in otherStatusReceivers:
             if isinstance(osr,WebStatus):
@@ -548,7 +548,7 @@ class WebStatus(service.MultiService):
                         duplicate_webstatus += 1
 
         if duplicate_webstatus:
-            errors.addError(
+            config.error(
                 "%d Webstatus objects have same port: %s"
                     % (duplicate_webstatus, self.http_port),
             )

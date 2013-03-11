@@ -73,6 +73,7 @@ Other optional keys may be set on each ``BuilderConfig``:
     objects. The function should return one of the :class:`BuildSlave`
     objects, or ``None`` if none of the available slaves should be
     used.
+    The function can optionally return a Deferred, which should fire with the same results.
 
 ``nextBuild``
     If provided, this is a function that controls which build request will be
@@ -82,6 +83,14 @@ Other optional keys may be set on each ``BuilderConfig``:
     :class:`BuildRequest` objects, or ``None`` if none of the pending
     builds should be started. This function can optionally return a
     Deferred which should fire with the same results.
+
+``canStartBuild``
+    If provided, this is a function that can veto whether a particular buildslave 
+    should be used for a given build request. The function is passed three 
+    arguments: the :class:`Builder`, a :class:`BuildSlave`, and a :class:`BuildRequest`.
+    The function should return ``True`` if the combination is acceptable, or 
+    ``False`` otherwise. This function can optionally return a Deferred which 
+    should fire with the same results.
 
 ``locks``
     This argument specifies a list of locks that apply to this builder; see
